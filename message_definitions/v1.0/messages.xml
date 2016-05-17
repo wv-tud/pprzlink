@@ -2964,6 +2964,10 @@
      <field name="msg" type="uint8[]"/>
    </message>
 
+   <message name="IMCU_DEBUG" id="115">
+     <field name="msg" type="uint8[]"/>
+   </message>
+
   </msg_class>
 
 </protocol>

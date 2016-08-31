@@ -188,7 +188,7 @@
     <field name="timestamp"     type="float"    unit="s"/>
     <field name="chksm_error"   type="uint32"/>
     <field name="hdr_error"     type="uint32"/>
-    <field name="counter" type="uint16"/>
+    <field name="rate" type="uint16" unit="packets/s"/>
     <field name="ins_status" type="uint8" values="NoTracking|OutOfSpecs|OK"/>
     <field name="ins_err" type="uint8"/>
     <field name="YprU1"     type="float"    unit="deg"/>
@@ -196,7 +196,23 @@
     <field name="YprU3"     type="float"    unit="deg"/>
   </message>
 
-  <!--24 is free -->
+  <message name="HYBRID_GUIDANCE" id="24">
+    <field name="pos_x" type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>
+    <field name="pos_y" type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>
+    <field name="speed_x" type="int32" alt_unit="m/s" alt_unit_coef="0.0000019"/>
+    <field name="speed_y" type="int32" alt_unit="m/s" alt_unit_coef="0.0000019"/>
+    <field name="wind_x" type="int32" alt_unit="m/s" alt_unit_coef="0.0039063"/>
+    <field name="wind_y" type="int32" alt_unit="m/s" alt_unit_coef="0.0039063"/>
+    <field name="pos_err_x" type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>
+    <field name="pos_err_y" type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>
+    <field name="speed_sp_x" type="int32" alt_unit="m/s" alt_unit_coef="0.0039063"/>
+    <field name="speed_sp_y" type="int32" alt_unit="m/s" alt_unit_coef="0.0039063"/>
+    <field name="norm_ref_speed" type="int32" alt_unit="m/s" alt_unit_coef="0.0039063"/>
+    <field name="heading_diff" type="int32"/>
+    <field name="phi" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="theta" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="psi" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+  </message>
 
   <message name="SVINFO" id="25">
     <field name="chn" type="uint8"/>
@@ -266,6 +282,7 @@
     <field name="periodic_cycle_max" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
     <field name="event_number" type="uint16"/>
     <field name="cpu_load" type="uint8" unit="%"/>
+    <field name="cpu_time"  type="float" unit="s"/>
   </message>
 
   <message name="MOTOR" id="34">
@@ -735,9 +752,21 @@
   </message>
 
   <message name="WIND_INFO_RET" id="87">
-    <field name="east" type="float" unit="m/s"/>
-    <field name="north" type="float" unit="m/s"/>
-    <field name="airspeed" type="float" unit="m/s"/>
+    <description>
+      Wind information returned to the ground station.
+      The wind is reported as a vector, it gives the direction the wind is blowing to.
+      This can be used to acknowledge data comming from the ground wind estimator
+      or from an embedded algorithm.
+      Flags field definition:
+      - bit 0: horizontal wind is valid (east and north fields)
+      - bit 1: vertical wind is valid (up field)
+      - bit 2: airspeed is valid
+    </description>
+    <field name="flags" type="uint8">bit 0: horizontal wind, bit 1: vertical wind: bit 2: airspeed</field>
+    <field name="east" type="float" unit="m/s">east component of the wind</field>
+    <field name="north" type="float" unit="m/s">north component of the wind</field>
+    <field name="up" type="float" unit="m/s">vertical component of the wind</field>
+    <field name="airspeed" type="float" unit="m/s">local airspeed norm</field>
   </message>
 
   <message name="SCP_STATUS" id="88">
@@ -860,7 +889,15 @@
     <field name="A2A_msg_rate" type="uint32"/>
   </message>
 
-  <!--107 is free -->
+  <message name="THROTTLE_CURVE" id="107">
+    <field name="curve" type="uint8"/>
+    <field name="throttle" type="uint16"/>
+    <field name="collective" type="int16"/>
+    <field name="rpm_sp" type="uint16"/>
+    <field name="rpm_meas" type="uint16"/>
+    <field name="rpm_err_sum" type="float"/>
+  </message>
+
   <message name="PIKSI_HEARTBEAT" id="108">
     <field name="heartbeat" type="uint32"/>
   </message>
@@ -890,7 +927,10 @@
     <field name="servo" type="uint16[]"/>
   </message>
 
-  <!--112 is free -->
+  <message name="MOTOR_MIXING" id="112">
+    <field name="values" type="int16[]" unit="none"/>
+  </message>
+
 
   <message name="MLX_SERIAL" id="113">
     <field name="serial0" type="uint32"/>
@@ -2137,6 +2177,7 @@
     <field name="cpu_load"    type="uint8" unit="%">Global CPU load</field>
     <field name="core_free"   type="uint32" unit="Bytes">Core free memory</field>
     <field name="heap_free"   type="uint32" unit="Bytes">Heap free memory</field>
+    <field name="cpu_time"  type="float" unit="s"/>
   </message>
 
   <message name="PPRZ_DEBUG" id="247">
@@ -2196,8 +2237,14 @@
       <field name="yaw_c"  type="float"/>
   </message>
 
-  <!-- 251 is free -->
-  <!-- 252 is free -->
+   <!--251 is free -->
+
+   <message name="GPS_SMALL" id="252">
+    <field name="multiplex_speed"  type="uint32">bits 31-21 course in decideg : bits 20-10 ground speed in cm/s : bits 9-0 climb speed in cm/s</field>
+    <field name="lat"  type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"></field>
+    <field name="lon"  type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"></field>
+    <field name="alt"  type="int16" unit="cm" alt_unit="m">height above the ellipsoid</field>
+  </message>
 
   <message name="I2C_ERRORS" id="253">
     <field name="wd_reset_cnt"                type="uint16"/>
@@ -2246,13 +2293,14 @@
 
 <msg_class name="datalink">
  <message name="ACINFO" id="1" link="broadcasted">
-  <field name="course" type="int16" unit="decideg"></field>
-  <field name="utm_east"  type="int32" unit="cm"></field>
-  <field name="utm_north"  type="int32" unit="cm"></field>
-  <field name="alt"    type="int32" unit="cm">Height above Mean Sea Level (geoid)</field>
-  <field name="itow"  type="uint32" unit="ms"></field>
-  <field name="speed"  type="uint16" unit="cm/s"></field>
-  <field name="climb"  type="int16" unit="cm/s"></field>
+  <field name="course"    type="int16"  unit="decideg" alt_unit="deg"/>
+  <field name="utm_east"  type="int32"  unit="cm"      alt_unit="m"/>
+  <field name="utm_north" type="int32"  unit="cm"      alt_unit="m"/>
+  <field name="utm_zone"  type="uint8"/>
+  <field name="alt"       type="int32"  unit="cm"      alt_unit="m">Height above Mean Sea Level (geoid)</field>
+  <field name="itow"      type="uint32" unit="ms"      alt_unit="s" alt_unit_coef="0.001"></field>
+  <field name="speed"     type="uint16" unit="cm/s"    alt_unit="m/s">ground speed</field>
+  <field name="climb"     type="int16"  unit="cm/s"    alt_unit="m/s"></field>
   <field name="ac_id" type="uint8"/>
  </message>
 
@@ -2265,11 +2313,22 @@
  </message>
 
  <message name="WIND_INFO" id="3" link="forwarded">
-  <field name="ac_id" type="uint8"/>
-  <field name="pad0" type="uint8"/>
-  <field name="east" type="float" unit="m/s"/>
-  <field name="north" type="float" unit="m/s"/>
-  <field name="airspeed" type="float" unit="m/s"/>
+   <description>
+     Wind information.
+     The wind is reported as a vector, it gives the direction the wind is blowing to.
+     This can be comming from the ground wind estimator
+     or from an embedded algorithm.
+     Flags field definition:
+     - bit 0: horizontal wind is valid (east and north fields)
+     - bit 1: vertical wind is valid (up field)
+     - bit 2: airspeed is valid
+   </description>
+   <field name="ac_id" type="uint8"/>
+   <field name="flags" type="uint8">bit 0: horizontal wind, bit 1: vertical wind: bit 2: airspeed</field>
+   <field name="east" type="float" unit="m/s">east component of the wind</field>
+   <field name="north" type="float" unit="m/s">north component of the wind</field>
+   <field name="up" type="float" unit="m/s">vertical component of the wind</field>
+   <field name="airspeed" type="float" unit="m/s">local airspeed norm</field>
  </message>
 
  <message name="SETTING" id="4" link="forwarded">
@@ -2329,6 +2388,17 @@
    <field name="ac_id" type="uint8"/>
    <field name="length" type="uint8"/>
    <field name="rtcm" type="uint8[]"/>
+ </message>
+
+  <message name="ACINFO_LLA" id="14" link="broadcasted">
+  <field name="course" type="int16"  unit="decideg" alt_unit="deg"/>
+  <field name="lat"    type="int32"  unit="1e7deg"  alt_unit="deg" alt_unit_coef="0.0000001"/>
+  <field name="lon"    type="int32"  unit="1e7deg"  alt_unit="deg" alt_unit_coef="0.0000001"/>
+  <field name="alt"    type="int32"  unit="cm"      alt_unit="m">Height above ellipsoid</field>
+  <field name="itow"   type="uint32" unit="ms"      alt_unit="s" alt_unit_coef="0.001"></field>
+  <field name="speed"  type="uint16" unit="cm/s"    alt_unit="m/s">ground speed</field>
+  <field name="climb"  type="int16"  unit="cm/s"    alt_unit="m/s"></field>
+  <field name="ac_id"  type="uint8"/>
  </message>
 
  <message name="GET_SETTING" id="16" link="forwarded">
@@ -2520,10 +2590,10 @@
   </message>
 
   <message name="REMOTE_GPS_SMALL" id="54" link="forwarded">
-    <field name="heading"   type="int16"  unit="rad*1e4"/>
-    <field name="pos_xyz"  	type="uint32" unit="cm">bits 31-21 x position in cm : bits 20-10 y position in cm : bits 9-0 z position in cm</field>
-    <field name="speed_xyz" type="uint32" unit="cm/s">bits 31-21 speed x in cm/s : bits 20-10 speed y in cm/s : bits 9-0 speed z in cm/s</field>
-    <field name="tow"   	type="uint32" unit="ms" alt_unit="m"/>
+    <field name="heading"   type="int16"  unit="1e4rad" alt_unit="deg" alt_unit_coef="0.0057296"/>
+    <field name="pos_xyz"  	type="uint32">bits 31-21 east position [cm] : bits 20-10 north position [cm] : bits 9-0 up position [cm]</field>
+    <field name="speed_xyz" type="uint32">bits 31-21 east speed [cm/s] : bits 20-10 north speed [cm/s] : bits 9-0 climb speed [cm/s]</field>
+    <field name="tow"   	type="uint32" unit="ms" alt_unit="s" alt_unit_coef="0.001"/>
     <field name="ac_id"   	type="uint8"/>
   </message>
 
@@ -2604,6 +2674,12 @@
     <field name="ac_id" type="uint8"/>
     <field name="packet_id" type="uint8"/>
     <field name="data" type="uint8[]"/>
+  </message>
+
+  <message name="EXTERNAL_MAG_RAW" id="154" link="forwarded">
+    <field name="x" type="int16"/>
+    <field name="y" type="int16"/>
+    <field name="z" type="int16"/>
   </message>
 
   <message name="VIDEO_ROI" id="155" link="forwarded" >
@@ -2906,6 +2982,54 @@
     <field name="climb"  type="float"  unit="m/s"/>
     <field name="itow"   type="uint32" unit="ms"/>
   </message>
+
+  <message name="SHAPE" id="38">
+    <description>
+      The SHAPE message used to draw shapes onto the Paparazzi GCS.
+      Field name shape is used to define the type of shape i.e. Circle, Polygon, Line, or Text.
+      This is indexed from 0-3 respectively.
+
+      Each shape drawn must have an id number associated with it. 
+      This id number in conjuction with the shapetype will be needed to update or delete the shape. 
+      A circle can be defined with the same id as a polygon but since they have different shape types they are considered unique.
+
+      linecolor and fillcolor take in a color string ie: "red", "blue" 
+      
+      opacity will change the level of transparency of the fill.
+      0 - Transparent
+      1 - Light Fill
+      2 - Medium Fill
+      3 - Opaque
+
+      Passing a status of 0 will create or update the shape specified by id and type.
+      Passing a status of 1 will delete the shape specified by id and type.
+
+      latarr is an array of coordinates that contain the latitude coordinate for each point in the shape. 
+      The array is comma separated.
+      lonarr is similar to latarr but contain the longitude coordinate for each point in the shape.
+
+      Circle and Text type will take the first coordinates given to place the shape.
+      Polygon will take all the coordinates given.
+      Line will take the first two coordinates given.
+
+      Radius is only used for the circle.
+
+      Text will always be populated with each message using the first set of coordinates.
+      The text field can not be blank or have spaces.
+      If text is not desired for a shape then pass "NULL" into the text field.
+    </description>
+    <field name="id"         type="uint8"/>
+    <field name="linecolor"  type="string"/>
+    <field name="fillcolor"  type="string"/>
+    <field name="opacity"    type="uint8" values="Transparent|Light|Medium|Opaque"/>
+    <field name="shape"      type="uint8" values="Circle|Polygon|Line"/>
+    <field name="status"     type="uint8"  values="create|delete"/>
+    <field name="latarr"     type="int32[]"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="lonarr"     type="int32[]"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="radius"     type="float" unit="m"/>
+    <field name="text"       type="string"/>
+  </message>
+
 
   <message name="PLUMES" id="100">
     <field name="ids" type="string" format="csv"/>

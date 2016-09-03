@@ -3030,7 +3030,7 @@
     <field name="text"       type="string"/>
   </message>
 
-  <message name="UBX_RTK_GROUNDSTATION" id="38">
+  <message name="UBX_RTK_GROUNDSTATION" id="39">
     <field name="ac_id"        type="string"/>
     <field name="staid"        type="uint16"/>
     <field name="itref"        type="uint8"/>

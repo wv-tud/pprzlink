@@ -3030,6 +3030,18 @@
     <field name="text"       type="string"/>
   </message>
 
+  <message name="UBX_RTK_GROUNDSTATION" id="38">
+    <field name="ac_id"        type="string"/>
+    <field name="staid"        type="uint16"/>
+    <field name="itref"        type="uint8"/>
+    <field name="ind_gps"      type="uint8" unit="bool"/>
+    <field name="ind_glonass"  type="uint8" unit="bool"/>
+    <field name="ind_galileo"  type="uint8" unit="bool"/>
+    <field name="ind_refs"     type="uint8" unit="bool"/>
+    <field name="lat"          type="float" unit="deg"/>
+    <field name="lon"          type="float" unit="deg"/>
+    <field name="alt"          type="float" unit="deg"/>
+  </message>
 
   <message name="PLUMES" id="100">
     <field name="ids" type="string" format="csv"/>

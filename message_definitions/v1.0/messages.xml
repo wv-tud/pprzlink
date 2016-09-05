@@ -927,10 +927,7 @@
     <field name="servo" type="uint16[]"/>
   </message>
 
-  <message name="MOTOR_MIXING" id="112">
-    <field name="values" type="int16[]" unit="none"/>
-  </message>
-
+  <!--112 is free -->
 
   <message name="MLX_SERIAL" id="113">
     <field name="serial0" type="uint32"/>
@@ -2690,6 +2687,11 @@
     <field name="height" type="int32">The height of the selected area </field>
     <field name="downsized_width" type="int32">The width of the image you received. Added because a module the receives this message does not know how big the image was that was broadcasted </field>
   </message>
+  
+  <message name="RTCM_INJECT" id="156" link="forwarded">
+    <field name="packet_id" type="uint8"/>
+    <field name="data" type="uint8[]"/>
+  </message>
 
 </msg_class>
 
@@ -3030,18 +3032,6 @@
     <field name="text"       type="string"/>
   </message>
 
-  <message name="UBX_RTK_GROUNDSTATION" id="39">
-    <field name="ac_id"        type="string"/>
-    <field name="staid"        type="uint16"/>
-    <field name="itref"        type="uint8"/>
-    <field name="ind_gps"      type="uint8" unit="bool"/>
-    <field name="ind_glonass"  type="uint8" unit="bool"/>
-    <field name="ind_galileo"  type="uint8" unit="bool"/>
-    <field name="ind_refs"     type="uint8" unit="bool"/>
-    <field name="lat"          type="float" unit="deg"/>
-    <field name="lon"          type="float" unit="deg"/>
-    <field name="alt"          type="float" unit="deg"/>
-  </message>
 
   <message name="PLUMES" id="100">
     <field name="ids" type="string" format="csv"/>
